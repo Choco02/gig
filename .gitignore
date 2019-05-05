@@ -1,0 +1,4 @@
+#ignore json files
+*.json
+#ignore module directory
+node_modules/
