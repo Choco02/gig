@@ -3,6 +3,9 @@ const YouTube = require('simple-youtube-api');
 const yt = new YouTube(apikey.yt);
 const ytdl = require('ytdl-core');
 
+//recomendo fortemente que leia a documentação do discord para que entenda algumas partes dos códigos
+//-> https://discord.js.org/#/docs/main/stable/class/StreamDispatcher
+
 exports.run = async (client, message, args, opts) => {
     try {
         //verifica se o membro está conectado, se não, mandará a seguinte mensagem (após o if)
@@ -25,6 +28,7 @@ exports.run = async (client, message, args, opts) => {
                 //leia sobre Maps aqui: https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Map
                 let data = opts.map.get(message.guild.id) || {};
                 //verifica se o bot está em conectado, se não, ele será conectado
+                //if()
                 if(!data.connection)
                     data.connection = await message.member.voiceChannel.join();
                 //basicamente a mesma coisa, se não houver uma queue para aquela deterinada chave, será criada
