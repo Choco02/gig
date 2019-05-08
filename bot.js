@@ -1,11 +1,11 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();//conexão com o cliente e as outras são todas requisições de libs/api
 const config = require('./config.json');
-const apikey = require('./apikey.json');
 const file = require('file-system');
 const fs = require('fs');
-const YouTube = require('simple-youtube-api');
-const yt = new YouTube(apikey.yt);
+//criando um novo Mapa de chave/valor
+//https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Map
+const map = new Map();
 
 //Evento da inicialização. Esse evento é importante, mesmo que não haja nada dentro, ele é necessário para que o bot seja inicializado
 client.on("ready",() =>{
@@ -34,6 +34,10 @@ client.on("message", async message=>{
     e consequantemente você fique perdido por causa da ilegibilidade, por isso vamos usar a lib file-system*/
     //na linha a seguir é feita a leitura da pasta comandos
     try {
+        let opts = {
+           dev:'234311548158476288',
+           map:map
+        }
         fs.readdir('./comandos', (err, files) => {
     
             if (err) console.log(err);
@@ -50,7 +54,7 @@ client.on("message", async message=>{
                 let pull = require(`./comandos/${f}`);
                 console.log(`${f} carregado`);
                 //Essa condicional verifica se há um comando nos modulos igual ao que você executou. Caso sim, ele será executado
-                if (pull.config.aliases.includes(comando)) pull.run(client, message, args, yt);
+                if (pull.config.aliases.includes(comando)) pull.run(client, message, args, opts);
             });
         });
     } catch (error) {
