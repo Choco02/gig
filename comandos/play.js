@@ -10,13 +10,13 @@ exports.run = async (client, message, args, opts) => {
     try {
         //verifica se o membro está conectado, se não, mandará a seguinte mensagem (após o if)
         if (!message.member.voiceChannel)
-            return await message.channel.send("<@"+message.author.id+">, entre em um canal de voz antes para que eu possa soltar o som...");
+            return message.reply(" entre em um canal de voz antes para que eu possa soltar o som...");
         //verifica se o comando foi executado sem argumentos
         if(!args)
-            return await message.channel.send("<@"+message.author.id+">, coloque um link (YouTube) ou nome da música para que eu possa toca-la!");
+            return message.reply(" coloque um link (YouTube) ou nome da música para que eu possa toca-la!");
         //verifica se o bot já está tocando em um canal diferente 
         if(message.guild.me.voiceChannel && message.guild.me.voiceChannelID!=message.member.voiceChannelID)
-            return await message.channel.send("<@"+message.author.id+">, o DJ <@"+client.user.id+"> está ocupado no momento tocando em outro canal!");
+            return message.reply(" o DJ "+client.user+" está ocupado no momento tocando em outro canal!");
         
         else{
             try {
@@ -67,19 +67,22 @@ exports.run = async (client, message, args, opts) => {
 }
 
 async function play(client,opts,data){
-    //pega o canal da instancia atual e envia ao mesmo uma mensagem
-    client.channels.get(data.queue[0].anuncio)
-    .send(`Estou tocando agora: ${data.queue[0].nome} Pedida por: ${data.queue[0].qr}`);
+    
     //cria-se a transmissão. Nada melhor do que a própria documentação pra explicar:
     //https://discord.js.org/#/docs/main/stable/class/StreamDispatcher
-    data.dispatcher = await data.connection.playStream(ytdl(data.queue[0].url),{filter:'audioonly'});
+    data.dispatcher = await data.connection.playStream(ytdl(data.queue[0].url,{filter:'audioonly'}));
     //expedidor por guild
     data.dispatcher.guildID = data.guildID;
     //aqui é um evento que será wmitido assim que o dispatcher terminar
     data.dispatcher.on('end',function(){
         //e mandamos o parametro. Esse this significa que será mandado o dispatcher atual
         finish(client, opts, this);
-    });
+        console.log('Music finalizada - ');
+    }).on('error', console.error);
+    //pega o canal da instancia atual e envia ao mesmo uma mensagem
+    if(data.dispatcher)
+    client.channels.get(data.queue[0].anuncio)
+    .send(`Estou tocando agora: ${data.queue[0].nome} Pedida por: ${data.queue[0].qr}`);
 }
 
 function finish(client, opts, dispatcher){
@@ -90,24 +93,26 @@ function finish(client, opts, dispatcher){
         //Lembre-se do evento 'end'!
         fetched.queue.shift();
 
-    //caso haja musicas na queue (por isso verificamos o tamanho do array), será chamada novamente a função de musica
-    //e será passada os proximos valores, sem a musica anterior
-    if(fetched.queue.length>0){
-        opts.map.set(dispatcher.guildID,fetched);
-        play(client,opts,fetched);
-    }else{
-        //Agora nas linhas a seguir se, não houver mais nada pra tocar, o objeto com a refeência da guild será destruido.
-        //e o bot será desconectado do canal de voz. Ocupar memória pra que, né?
-        //Quem vive de passado é museu
-        opts.map.delete(dispatcher.guildID);
-        let vc = client.guilds.get(dispatcher.guildID).me.voiceChannel;
-        if(vc)
-            vc.leave();
-        //E fim da história do comando play
-    }
-    } catch (error) {
-        console.log(error);
-    }
+        //caso haja musicas na queue (por isso verificamos o tamanho do array), será chamada novamente a função de musica
+        //e será passada os proximos valores, sem a musica anterior
+        if(fetched.queue.length>0){
+            opts.map.set(dispatcher.guildID,fetched);
+            console.log("Musica passada");
+            play(client,opts,fetched);
+        }else{
+            //Agora nas linhas a seguir se, não houver mais nada pra tocar, o objeto com a refeência da guild será destruido.
+            //e o bot será desconectado do canal de voz. Ocupar memória pra que, né?
+            //Quem vive de passado é museu
+            opts.map.delete(dispatcher.guildID);
+            let vc = client.guilds.get(dispatcher.guildID).me.voiceChannel;
+            if(vc)
+                vc.leave();
+            //E fim da história do comando play
+            console.log("Queue finalizada");
+        }
+        } catch (error) {
+            console.log(error);
+        }
 }
 
 exports.config = {
