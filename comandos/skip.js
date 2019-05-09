@@ -27,10 +27,10 @@ exports.run = async (client, message, args, opts) => {
 
         opts.map.set(message.guild.id,fetched);
         
-        //if (fetched.queue[0].votes.length>=requerido) {
+        if (fetched.queue[0].votes.length>=requerido) {
             message.channel.send("Pulei!");
             return fetched.dispatcher.end();
-        //}
+        }
         //message.channel.send("É pra pular? Votos: "+fetched.queue[0].votes.length+"/"+requerido);
         console.log('musica pulada');
     
