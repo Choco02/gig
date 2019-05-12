@@ -1,7 +1,6 @@
 const Discord = require('discord.js');
 const client = new Discord.Client();//conexão com o cliente e as outras são todas requisições de libs/api
 const config = require('./config.json');
-const file = require('file-system');
 const fs = require('fs');
 //criando um novo Mapa de chave/valor
 //https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Map
@@ -10,6 +9,11 @@ const map = new Map();
 //Evento da inicialização. Esse evento é importante, mesmo que não haja nada dentro, ele é necessário para que o bot seja inicializado
 client.on("ready",() =>{
     console.log("Bot iniciado!");
+    client.user.setPresence({ game: { name: 'Uma rave no Discord!', type: 1, url: 'https://www.twitch.tv/killuabr_'} });
+    //0 = Jogando
+    //  1 = Transmitindo
+    //  2 = Ouvindo
+    //  3 = Assistindo
 });
 
 //evento que é disparado sempre que há alterações no chat da sua guild
