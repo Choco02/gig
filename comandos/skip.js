@@ -23,10 +23,10 @@ exports.run = async (client, message, args, opts) => {
         if(fetched.queue[0].votes.includes(message.member.id))
             return message.reply(" você já votou, espertinho");
         
-            //fetched.queue[0].votes.push(message.member.id);
+        fetched.queue[0].votes.push(message.member.id);
 
         opts.map.set(message.guild.id,fetched);
-        
+        console.log(fetched.queue[0].votes.length);
         if (fetched.queue[0].votes.length>=requerido) {
             message.channel.send("Pulei!");
             return fetched.dispatcher.end();
