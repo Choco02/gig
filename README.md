@@ -1,6 +1,6 @@
 # Gig :musical_note:
 
-Criei esse bot com a a finalidade de ajudar as pessoas a desenvolver o seu próprio (aprendi bastante inclusive, pois também sou iniciante no JS). 
+Criei esse bot com a a finalidade de ajudar as pessoas a desenvolver o seu próprio (aprendi bastante inclusive, pois também sou iniciante no JS). Ele tem unicamente a finalidade de reproduzir músicas.
 
 ### Dependencias do Bot (npm):
 
@@ -10,7 +10,6 @@ Criei esse bot com a a finalidade de ajudar as pessoas a desenvolver o seu próp
 -file-system<br>
 -ffmpeg<br>
 -simple-youtube-api<br>
-<br>
 ### Observações:
 1 - Voce precisará insalar os binários do ffmpeg no seu computador, para que funcione. Nese link ensina como: https://windowsloop.com/install-ffmpeg-windows-10/<br>
 2 - De uma chave de API do YouTube, pois a lib usada no bot requer a chave.<br>
