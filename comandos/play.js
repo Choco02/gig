@@ -20,10 +20,11 @@ exports.run = async (client, message, args, opts) => {
         
         else{
             try {
-                //pegando informação do vídeo
-                let info = await ytdl.getInfo(args[0].toString());
+                //procurando pela música
+                let song = await yt.searchVideos(args.join(" "),1);
+                              
                 //Aqui é onde é requisitado o objeto relacionado a guild que o comando foi executado, se não ele cria outro (por isso ||)
-                //Isso é muito importante, pois se há uma transmissão simultânea em servidores, será compartilhada as mesmas informações
+                //Isso é muito importante, pois se há uma transmissão simultânea em servidores, será compartilhada a mesma playlist
                 //O que não pode acontecer de jeito nenhum, né?!
                 //leia sobre Maps aqui: https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Map
                 let data = opts.map.get(message.guild.id) || {};
@@ -39,29 +40,30 @@ exports.run = async (client, message, args, opts) => {
                 //adiciona um objeto a queue, com as informações da música pedida
                 //entenda melhor sobre objetos em JS: https://developer.mozilla.org/pt-BR/docs/Aprender/JavaScript/Objetos/B%C3%A1sico
                 data.queue.push({
-                    nome:info.title,
+                    nome:song[0].title,
                     qr:message.author.tag,
-                    url:args[0],
+                    url:song[0].url,
                     anuncio:message.channel.id
                 });
                 //se não ouver nenhum trasnmissão, será chamada a função de tocar
                 if(!data.dispatcher)
                     play(client,opts,data);
                 else{
-                    message.channel.send("Musica adicionada a fila!");
+                    message.channel.send(song[0].title+" adicionada a fila!");
                 }
                 //E essa linha? Simples, se a já houver um expedidor, será somente adicionado um novo valor a chave da guild
                 //Você entenderá melhor nas próximas funções, guenta aí
                 opts.map.set(message.guild.id,data);
 
             } catch(e) {
+                console.log(e);
                 message.channel.send(e.toString());
             }
             
         }
         
     } catch(e) {
-        message.channel.send(e);
+        message.channel.send(e.toString());
     }
 
 }
@@ -76,13 +78,13 @@ async function play(client,opts,data){
     //aqui é um evento que será wmitido assim que o dispatcher terminar
     data.dispatcher.on('end',function(){
         //e mandamos o parametro. Esse this significa que será mandado o dispatcher atual
+        console.log('Music finalizada - '+data.queue[0].nome);
         finish(client, opts, this);
-        console.log('Music finalizada - ');
+        
     }).on('error', console.error);
     //pega o canal da instancia atual e envia ao mesmo uma mensagem
     if(data.dispatcher)
-    client.channels.get(data.queue[0].anuncio)
-    .send(`Estou tocando agora: ${data.queue[0].nome} Pedida por: ${data.queue[0].qr}`);
+    client.channels.get(data.queue[0].anuncio).send(`Estou tocando agora: ${data.queue[0].nome} Pedida por: ${data.queue[0].qr}`);
 }
 
 function finish(client, opts, dispatcher){
