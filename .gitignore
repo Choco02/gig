@@ -2,3 +2,5 @@
 *.json
 #ignore module directory
 node_modules/
+#ignore test.js
+test.js
