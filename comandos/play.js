@@ -2,7 +2,7 @@ const apikey = require('../apikey.json');
 const YouTube = require('simple-youtube-api');
 const yt = new YouTube(apikey.yt);
 const ytdl = require('ytdl-core');
-
+const Discord = require('discord.js');
 //recomendo fortemente que leia a documentação do discord para que entenda algumas partes dos códigos
 //-> https://discord.js.org/#/docs/main/stable/class/StreamDispatcher
 
@@ -20,9 +20,7 @@ exports.run = async (client, message, args, opts) => {
         
         else{
             try {
-                //procurando pela música
-                let song = await yt.searchVideos(args.join(" "),1);
-                              
+                
                 //Aqui é onde é requisitado o objeto relacionado a guild que o comando foi executado, se não ele cria outro (por isso ||)
                 //Isso é muito importante, pois se há uma transmissão simultânea em servidores, será compartilhada a mesma playlist
                 //O que não pode acontecer de jeito nenhum, né?!
@@ -31,20 +29,41 @@ exports.run = async (client, message, args, opts) => {
                 //verifica se o bot está em conectado, se não, ele será conectado
                 //if()
                 if(!data.connection)
-                    data.connection = await message.member.voiceChannel.join();
+                data.connection = await message.member.voiceChannel.join();
                 //basicamente a mesma coisa, se não houver uma queue para aquela deterinada chave, será criada
                 if(!data.queue)
-                    data.queue = [];
+                data.queue = [];
                 //adiciona o id da guild ao objeto
                 data.guildID = message.guild.id;
                 //adiciona um objeto a queue, com as informações da música pedida
                 //entenda melhor sobre objetos em JS: https://developer.mozilla.org/pt-BR/docs/Aprender/JavaScript/Objetos/B%C3%A1sico
-                data.queue.push({
-                    nome:song[0].title,
-                    qr:message.author.tag,
-                    url:song[0].url,
-                    anuncio:message.channel.id
-                });
+                let check = /^.*(youtu.be\/|list=)([^#\&\?]*).*/;
+                if(args[0].match(check)){
+                    let playlist = await yt.getPlaylist(args[0]);
+                    let videos = await playlist.getVideos();
+                    for(let i=0;i<videos.length;i++){
+                        data.queue.push({
+                            nome:videos[i].title,
+                            qr:message.author,
+                            url:videos[i].url,
+                            canal:videos[i].channel.title,
+                            pub:videos[i].publishedAt.toLocaleDateString(),
+                            anuncio:message.channel.id
+                        });
+                    }
+                }
+                if(!args[0].match(check)){
+                    //procurando pela música
+                    let song = await yt.searchVideos(args.join(" "),1);
+                    data.queue.push({
+                        nome:song[0].title,
+                        qr:message.author,
+                        url:song[0].url,
+                        canal:song[0].channel.title,
+                        pub:song[0].publishedAt.toLocaleDateString(),
+                        anuncio:message.channel.id
+                    });
+                }
                 //se não ouver nenhum trasnmissão, será chamada a função de tocar
                 if(!data.dispatcher)
                     play(client,opts,data);
@@ -83,8 +102,12 @@ async function play(client,opts,data){
         
     }).on('error', console.error);
     //pega o canal da instancia atual e envia ao mesmo uma mensagem
-    if(data.dispatcher)
-    client.channels.get(data.queue[0].anuncio).send(`Estou tocando agora: ${data.queue[0].nome} Pedida por: ${data.queue[0].qr}`);
+    if(data.dispatcher){
+        let embed = new Discord.RichEmbed().addField("Música:",data.queue[0].nome).addField("Canal:",data.queue[0].canal)
+        .addField("Publicado em:",data.queue[0].pub).setFooter("Adicionada por: "+data.queue[0].qr.tag,data.queue[0].qr.avatarURL)
+        .setColor('RANDOM');
+        client.channels.get(data.queue[0].anuncio).send(embed);
+    }
 }
 
 function finish(client, opts, dispatcher){
