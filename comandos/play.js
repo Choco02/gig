@@ -68,7 +68,7 @@ exports.run = async (client, message, args, opts) => {
                 if(!data.dispatcher)
                     play(client,opts,data);
                 else{
-                    message.channel.send(song[0].title+" adicionada a fila!");
+                    message.channel.send(data.queue.slice(-1)[0].nome+" adicionada a fila!");
                 }
                 //E essa linha? Simples, se a já houver um expedidor, será somente adicionado um novo valor a chave da guild
                 //Você entenderá melhor nas próximas funções, guenta aí
@@ -95,9 +95,9 @@ async function play(client,opts,data){
     //expedidor por guild
     data.dispatcher.guildID = data.guildID;
     //aqui é um evento que será wmitido assim que o dispatcher terminar
-    data.dispatcher.on('end',function(){
+    data.dispatcher.on('end',function(reason){
         //e mandamos o parametro. Esse this significa que será mandado o dispatcher atual
-        console.log('Music finalizada - '+data.queue[0].nome);
+        console.log('Music finalizada -> '+data.queue[0].nome+" razão = "+reason);
         finish(client, opts, this);
         
     }).on('error', console.error);
@@ -122,7 +122,7 @@ function finish(client, opts, dispatcher){
         //e será passada os proximos valores, sem a musica anterior
         if(fetched.queue.length>0){
             opts.map.set(dispatcher.guildID,fetched);
-            console.log("Musica passada");
+            console.log("Musica passada =>"+fetched.queue[0].nome);
             play(client,opts,fetched);
         }else{
             //Agora nas linhas a seguir se, não houver mais nada pra tocar, o objeto com a refeência da guild será destruido.

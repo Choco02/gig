@@ -8,7 +8,7 @@ const map = new Map();
 
 //Evento da inicialização. Esse evento é importante, mesmo que não haja nada dentro, ele é necessário para que o bot seja inicializado
 client.on("ready",() =>{
-    console.log("Bot iniciado!");
+    console.log("Gig online!");
     client.user.setPresence({ game: { name: 'Uma rave no Discord!', type: 1, url: 'https://www.twitch.tv/killuabr_'} });
     //0 = Jogando
     //  1 = Transmitindo

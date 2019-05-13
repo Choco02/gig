@@ -6,7 +6,7 @@ Criei esse bot com a a finalidade de ajudar as pessoas a desenvolver o seu próp
 
 -Discord.js<br>
 -ytdl-crore<br>
--opusscript<br>
+-node-opus<br>
 -file-system<br>
 -ffmpeg<br>
 -simple-youtube-api<br>
