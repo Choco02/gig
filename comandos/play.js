@@ -92,6 +92,9 @@ async function play(client,opts,data){
     //cria-se a transmissão. Nada melhor do que a própria documentação pra explicar:
     //https://discord.js.org/#/docs/main/stable/class/StreamDispatcher
     data.dispatcher = await data.connection.playStream(ytdl(data.queue[0].url,{filter:'audioonly'}));
+    data.dispatcher.on('start', () => {
+        data.dispatcher.player.streamingData.pausedTime = 0;
+    });
     //expedidor por guild
     data.dispatcher.guildID = data.guildID;
     //aqui é um evento que será wmitido assim que o dispatcher terminar
