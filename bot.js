@@ -15,6 +15,20 @@ client.on("ready",() =>{
     //  2 = Ouvindo
     //  3 = Assistindo
 });
+//evento para a alteração de estado de voz
+client.on('voiceStateUpdate',(oldMember,newMember)=>{
+    //verificamos se o bot está conectado e se ao mesmo tempo ele está sozinho na sala. Caso sim, ele sairá da mesma
+    if(client.guilds.get(oldMember.guild.id).me.voiceChannel && client.guilds.get(oldMember.guild.id).me.voiceChannel.members.size<2){
+        client.guilds.get(oldMember.guild.id).me.voiceChannel.leave();
+        map.delete(oldMember.guild.id);
+    }
+    //caso o bot seja desconectado por algum adm, ele vai deletar os dados que tinham relacionado aquela guild
+    //pois é inútil guardar em memória, algo que não vai ser mais usado
+    else if(!client.guilds.get(oldMember.guild.id).me.voiceChannel && map.get(oldMember.guild.id)){
+        map.delete(oldMember.guild.id);
+        console.log('map da guild '+oldMember.guild.name+' deletado');
+    }
+})
 
 //evento que é disparado sempre que há alterações no chat da sua guild
 client.on("message", async message=>{
@@ -33,7 +47,7 @@ client.on("message", async message=>{
     const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
     //aqui pegamos somente o comando usado (sem o prefixo)
     const comando = args.shift().toLowerCase();
-
+    
     /*É sempre bom separar uma aplicação por funcionalidades, pra evitar que fique tudo em um só arquivo 
     e consequantemente você fique perdido por causa da ilegibilidade, por isso vamos usar a lib file-system*/
     //na linha a seguir é feita a leitura da pasta comandos
