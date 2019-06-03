@@ -4,6 +4,8 @@ const yt = new YouTube(apikey.yt);
 const ytdl = require('ytdl-core-discord');
 const moment = require('moment');
 const Discord = require('discord.js');
+const prism = require('prism-media');
+const fs = require('fs');
 //recomendo fortemente que leia a documentação do discord para que entenda algumas partes dos códigos
 //-> https://discord.js.org/#/docs/main/stable/class/StreamDispatcher
 
@@ -44,7 +46,7 @@ exports.run = async (client, message, args, opts) => {
                             qr:message.author,
                             url:videos[i].url,
                             canal:videos[i].channel.title,
-                            pub:videos[i].publishedAt.toLocaleDateString(),
+                            pub:videos[i].publishedAt,
                             anuncio:message.channel.id
                         });
                     }
@@ -126,7 +128,8 @@ exports.run = async (client, message, args, opts) => {
 
             } catch(e) {
                 console.log(e);
-                message.channel.send(e.toString());
+                if(e.code && e.code==403)
+                message.channel.send('atualmente uso a API do YouTube de forma gratuita, e no momento atingi o limite da cota diária de requisições. Tente novamente mais tarde!');
             }
             
         }
@@ -141,6 +144,11 @@ async function play(client,opts,data){
     
     //cria-se a transmissão. Nada melhor do que a própria documentação pra explicar:
     //https://discord.js.org/#/docs/main/stable/class/StreamDispatcher
+    /*const input = await ytdl(data.queue[0].url)
+    const pcm = input.pipe(new prism.opus.Decoder({ rate: 48000, channels: 2, frameSize: 960 }));
+    data.dispatcher = data.connection.playConvertedStream(pcm);
+    data.dispatcher.setBitrate(48000);*/
+    
     data.dispatcher = await data.connection.playOpusStream(await ytdl(data.queue[0].url));
     data.dispatcher.on('start', () => {
         data.dispatcher.player.streamingData.pausedTime = 0;
@@ -195,5 +203,5 @@ function finish(client, opts, dispatcher){
 
 exports.config = {
     name: 'play',
-    aliases: ['play'],
+    aliases: ['play','tocar'],
 }

@@ -56,6 +56,7 @@ client.on("message", async message=>{
            dev:'234311548158476288',
            map:map
         }
+        //if(message.author.id!==opts.dev)return message.reply('estou em manutenção no momento!')
         fs.readdir('./comandos', (err, files) => {
     
             if (err) console.log(err);

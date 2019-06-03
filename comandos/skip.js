@@ -41,5 +41,5 @@ exports.run = async (client, message, args, opts) => {
 
 exports.config = {
     name: 'skip',
-    aliases: ['skip']
+    aliases: ['skip','pular']
 }
